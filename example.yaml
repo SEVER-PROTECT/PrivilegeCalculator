@@ -1,0 +1,65 @@
+metadata:
+  SEVER version: '1.4'
+  Input trace: test/traces/priv_example_trace.yaml
+  Cluster size: 2
+  Overprivilege Ratio (OR): 1.2173913043478262
+  Privilege Set Ratio (PSR): 0.44919786096256686
+object_map:
+- name: OD1
+  objects:
+  - O1
+  sizes:
+  - 10
+- name: OD2
+  objects:
+  - O2
+  sizes:
+  - 20
+subject_map:
+- name: SD2
+  subjects:
+  - F1
+  - F2
+  sizes:
+  - 20
+  - 30
+  read_instructions: 7
+  write_instructions: 9
+  call_instructions: 2
+  return_instructions: 3
+- name: SD3
+  subjects:
+  - F3
+  sizes:
+  - 16
+  read_instructions: 5
+  write_instructions: 1
+  call_instructions: 1
+  return_instructions: 1
+privileges:
+- principal:
+    subject: SD2
+    execution_context: {}
+  can_call:
+  - SD2
+  - SD3
+  can_return: []
+  can_read:
+  - object_context: {}
+    objects:
+    - OD1
+  can_write: []
+- principal:
+    subject: SD3
+    execution_context: {}
+  can_call: []
+  can_return:
+  - SD2
+  can_read:
+  - object_context: {}
+    objects:
+    - OD1
+  can_write:
+  - object_context: {}
+    objects:
+    - OD2
