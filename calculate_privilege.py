@@ -1,5 +1,5 @@
 '''
-SEVER Compartment Generator
+CPM Privilege Calculator
 Copyright (c) 2025 The Charles Stark Draper Laboratory, Inc
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -24,20 +24,20 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import sys
 import yaml
-from enum import Enum
+import argparse
 
 # Four operation types
 ops = ["READ", "WRITE", "CALL", "RETURN"]
 
-# Calculate the privilege of a given compartmentalization c
-def calculate_privilege(c):
-    
+# Calculate the privilege of a given compartmentalization c and whether or not to assume W-XOR-X
+def calculate_privilege(c, wxorx):
+
+    print(f"Write-XOR-Execute: {wxorx}")
     subjs = []
     objs = []
     subj_sizes = {}
     obj_sizes = {}
     subj_op_counts = {}
-    obj_number_objs = {}
 
     privilege = {}
     for op in ops:
@@ -63,7 +63,6 @@ def calculate_privilege(c):
         objects = obj_descriptor["objects"]
         sizes = obj_descriptor.get("sizes", [1] * len(subjects))
         obj_sizes[obj] = sum(sizes)
-        obj_number_objs[obj] = len(objects)
         
     for principal in c['privileges']:
         subject = principal['principal']['subject']
@@ -108,16 +107,23 @@ def calculate_privilege(c):
 
     all_code_size = sum(subj_sizes.values())
     all_data_size = sum(obj_sizes.values())
+    all_combined_size = all_code_size + all_data_size
     
     total_read_instrs = sum(s["READ"] for s in subj_op_counts.values())
     total_write_instrs = sum(s["WRITE"] for s in subj_op_counts.values())
     total_call_instrs = sum(s["CALL"] for s in subj_op_counts.values())
     total_return_instrs = sum(s["RETURN"] for s in subj_op_counts.values())
 
-    mono_priv["CALL"] = total_call_instrs * all_code_size
-    mono_priv["RETURN"] = total_return_instrs * all_code_size
-    mono_priv["READ"] = total_read_instrs * all_data_size
-    mono_priv["WRITE"] = total_write_instrs * all_data_size
+    if wxorx:
+        mono_priv["CALL"] = total_call_instrs * all_code_size
+        mono_priv["RETURN"] = total_return_instrs * all_code_size
+        mono_priv["READ"] = total_read_instrs * all_data_size
+        mono_priv["WRITE"] = total_write_instrs * all_data_size
+    else:
+        mono_priv["CALL"] = total_call_instrs * all_combined_size
+        mono_priv["RETURN"] = total_return_instrs * all_combined_size
+        mono_priv["READ"] = total_read_instrs * all_combined_size
+        mono_priv["WRITE"] = total_write_instrs * all_combined_size
 
     PSR = calculate_PSR(privilege, mono_priv)
 
@@ -145,23 +151,26 @@ def calculate_PSR(comp_priv, mono_priv):
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 2:
-        print('Usage: python3 calculate_privilege.py <trace path>')
-        exit(0)
+    description = f"CPM Privilege Calculator"
+    parser = argparse.ArgumentParser(description=description)
 
-    compfile = sys.argv[1]
+    parser.add_argument('compfile', help='Compartmentalization YAML file')
+    parser.add_argument('--no-wxorx', action=argparse.BooleanOptionalAction, help="Removes the assumption of write-xor-execute memory permissions")
+
+    args = parser.parse_args()
+    wxorx = args.no_wxorx != False
 
     # Open the file
     try:
-        f = open(compfile, 'r')
+        f = open(args.compfile, 'r')
     except Exception as e:
-        print("Unable to open file " + sys.argv[1])
+        print("Unable to open file " + args.compfile)
 
     # Parse as yaml
     try:
         c = yaml.safe_load(f)
     except yaml.YAMLError as e:
-        print("Error parsing yaml file: " + policyfile)
+        print("Error parsing yaml file: " + args.compfile)
     
     # Calculate privileges on it
-    calculate_privilege(c)
+    calculate_privilege(c, wxorx)
