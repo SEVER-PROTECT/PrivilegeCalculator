@@ -3,7 +3,7 @@ metadata:
   Input trace: ./test/traces/priv_example_trace.yaml
   Cluster size: 2
   Overprivilege Ratio (OR): 1.198237885462555
-  Privilege Set Ratio (PSR): 0.5964912280701754
+  Privilege Set Ratio (PSR): 0.25757575757575757
 object_map:
 - name: OD1
   objects:
