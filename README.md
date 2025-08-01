@@ -170,11 +170,11 @@ When run on the included `example.yaml` file it produces the same results as our
 ```
 $ python3 calculate_privilege.py example.yaml
 PSR:
-READ    0.3333333333333333
-WRITE   0.06666666666666667
-CALL    0.7474747474747475
-RETURN  0.8181818181818182
-TOTAL   0.44919786096256686
+READ	0.10416666666666667
+WRITE	0.20833333333333334
+CALL	0.5138888888888888
+RETURN	0.5625
+TOTAL	0.25757575757575757
 ```
 
 When run on the included `example.yaml` with setting the write weight of O2 to 10 using `weights.csv` it produces the same results as our manual calculation:

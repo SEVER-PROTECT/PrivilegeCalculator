@@ -123,31 +123,32 @@ def calculate_privilege(c, weights, wxorx):
     for op in ops:
         mono_priv[op] = 0
 
+    # Count up sizes and instruction counts
     all_data_size = {}
     all_code_size = {}
-
+    total_op_count = {}
     for op in ops:
         all_data_size[op] = 0
         all_code_size[op] = 0
-
+        total_op_count[op] = 0
+        for s in subj_op_counts:
+            total_op_count[op] += subj_op_counts[s][op]
         for s in subj_weights[op]:
             all_code_size[op] += subj_weights[op][s]
         for o in obj_weights[op]:
             all_data_size[op] += obj_weights[op][o]
 
-    for principal in c['privileges']:
-        subject = principal['principal']['subject']
-        mono_priv["READ"] += subj_op_counts[subject]["READ"] * all_data_size["READ"]
-        mono_priv["WRITE"] += subj_op_counts[subject]["WRITE"] * all_data_size["WRITE"]
-        mono_priv["CALL"] += subj_op_counts[subject]["CALL"] * all_code_size["CALL"]
-        mono_priv["RETURN"] += subj_op_counts[subject]["RETURN"] * all_code_size["RETURN"]
+    mono_priv["READ"] = total_op_count["READ"] * all_data_size["READ"]
+    mono_priv["WRITE"] = total_op_count["WRITE"] * all_data_size["WRITE"]
+    mono_priv["CALL"] = total_op_count["CALL"] * all_code_size["CALL"]
+    mono_priv["RETURN"] += total_op_count["RETURN"] * all_code_size["RETURN"]
 
-        # With no W^X, you can read/write code and call/return data
-        if not wxorx:
-            mono_priv["READ"] += subj_op_counts[subject]["READ"] * all_code_size["READ"]
-            mono_priv["WRITE"] += subj_op_counts[subject]["WRITE"] * all_code_size["WRITE"]
-            mono_priv["CALL"] += subj_op_counts[subject]["CALL"] * all_data_size["CALL"]
-            mono_priv["RETURN"] += subj_op_counts[subject]["RETURN"] * all_data_size["RETURN"]
+    # With no W^X, you can read/write code and call/return data
+    if not wxorx:
+        mono_priv["READ"] += total_op_count["READ"] * all_code_size["READ"]
+        mono_priv["WRITE"] += total_op_count["WRITE"] * all_code_size["WRITE"]
+        mono_priv["CALL"] += total_op_count["CALL"] * all_data_size["CALL"]
+        mono_priv["RETURN"] += total_op_count["RETURN"] * all_data_size["RETURN"]
 
     #print(f"Priv: {privilege}")
     #print(f"Mono Priv: {mono_priv}")
