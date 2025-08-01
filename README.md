@@ -1,6 +1,8 @@
 # Privilege Calculator
 This repository contains a standalone privilege calculator that calculates privilege metrics for a given system and compartmentalization specification. It operates on compartmentalization specifications provided in the CPM-IF YAML file format (definition available [here](https://github.com/SEVER-PROTECT/CPM-Interchange-Format)).
 
+IMPORTANT NOTE: This calculator does not yet properly capture the privilege impact of contexts in principals. It is intended only for context-free inputs.
+
 ## Privilege Model
 The calculator computes a low-level, instruction and object accessibility based quantification of the privilege permitted by a compartmentalization scheme. It is based on the research papers [uSCOPE](https://www.seas.upenn.edu/~andre/pdf/uscope_raid2021.pdf) and [SCALPEL](https://dl.acm.org/doi/pdf/10.1145/3461673).
 
