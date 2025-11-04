@@ -198,9 +198,9 @@ def apply_weight(value, weight_string):
         return value
 
     if weight_string[0] == "=":
-        return value * int(weight_string[1:])
+        return float(weight_string[1:])
     else:
-        return value * int(weight_string)
+        return value * float(weight_string)
 
 def calculate_PSR(comp_priv, mono_priv):
 
