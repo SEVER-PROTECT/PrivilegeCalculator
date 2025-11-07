@@ -74,7 +74,7 @@ def calculate_privilege(c, weights, wxorx):
         obj = obj_descriptor['name']
         objs.append(obj)
         objects = obj_descriptor["objects"]
-        sizes = obj_descriptor.get("sizes", [1] * len(subjects))
+        sizes = obj_descriptor.get("sizes", [1] * len(objects))
         obj_sizes[obj] = sum(sizes)
         for op in ops:
             obj_weights[op][obj] = 0
